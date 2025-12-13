@@ -45,24 +45,26 @@ REGIONS = {
     "Australia 🇦🇺": {"sym": "$", "ebay": "ebay.com.au", "posh": "poshmark.com.au", "ship_def": 12.00, "trends": ["R.M. Williams", "Spell & Gypsy", "AFL Gear"]}
 }
 
-BLACKLIST_DB = [
-    {"Brand": "SHEIN / ROMWE", "Risk": "Extreme", "Reason": "Zero resale value. Do not buy."},
-    {"Brand": "George (Walmart)", "Risk": "High", "Reason": "Market saturation. Low margins."},
-    {"Brand": "LuLaRoe", "Risk": "High", "Reason": "Trend dead since 2018."},
-    {"Brand": "H&M (Basic)", "Risk": "Medium", "Reason": "Retail price lower than shipping."},
-    {"Brand": "Forever 21", "Risk": "High", "Reason": "Poor quality materials."},
-]
+# ==========================================
+# 3. LIVE DATABASE (AUTO-UPDATES FROM GITHUB)
+# ==========================================
+# This link points to your raw JSON file so the app can read it
+DB_URL = "https://raw.githubusercontent.com/FocusOS-dev/Thrift-Hunter/main/database.json"
 
-VAULT_DB = {
-    "Canada 🇨🇦": [
-        {"Brand": "Arc'teryx", "Model": "Beta Jacket", "Buy": "$40", "Sell": "$250+", "Vel": "⚡ Fast"},
-        {"Brand": "Roots", "Model": "Beaver Hoodie", "Buy": "$15", "Sell": "$60+", "Vel": "🔥 Fast"},
-        {"Brand": "Aritzia", "Model": "Super Puff", "Buy": "$40", "Sell": "$150+", "Vel": "⚡ Fast"},
-    ],
-    "USA 🇺🇸": [
-        {"Brand": "Carhartt", "Model": "Detroit J97", "Buy": "$30", "Sell": "$200+", "Vel": "⚡ Fast"},
-        {"Brand": "Patagonia", "Model": "Synchilla", "Buy": "$15", "Sell": "$70+", "Vel": "🔥 Fast"},
-    ],
+@st.cache_data(ttl=300) # Checks for updates every 5 minutes
+def get_live_data():
+    try:
+        # Tries to read your live file from GitHub
+        df = pd.read_json(DB_URL)
+        return df['blacklist'].tolist(), df['vault'].to_dict()
+    except:
+        # Backup data if GitHub is down
+        return [
+            {"Brand": "SHEIN", "Risk": "Extreme", "Reason": "Offline Mode"}
+        ], {"Canada 🇨🇦": []}
+
+# Load the data into variables
+BLACKLIST_DB, VAULT_DB = get_live_data(),
     "UK 🇬🇧": [
         {"Brand": "Barbour", "Model": "Beaufort", "Buy": "£25", "Sell": "£90+", "Vel": "🔥 Fast"},
         {"Brand": "Stone Island", "Model": "Sweater", "Buy": "£40", "Sell": "£120+", "Vel": "⚡ Fast"},
@@ -449,4 +451,5 @@ elif st.session_state.view == 'settings':
         if st.button("Reset App"): 
             st.session_state.clear()
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
+
             st.rerun()
