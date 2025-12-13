@@ -19,8 +19,8 @@ st.set_page_config(
 # 2. USER LINKS (EDIT HERE)
 # ==========================================
 PAYMENT_LINKS = {
-    "monthly": "https://buy.stripe.com/test_monthly_link", 
-    "lifetime": "https://buy.stripe.com/test_lifetime_link"
+    "monthly": "https://businessmindset31.gumroad.com/l/entml", 
+    "lifetime": "https://businessmindset31.gumroad.com/l/klwkxa"
 }
 
 AFFILIATE_LINKS = {
