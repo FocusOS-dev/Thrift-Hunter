@@ -65,11 +65,6 @@ def get_live_data():
 
 # Load the data into variables
 BLACKLIST_DB, VAULT_DB = get_live_data(),
-    "UK 🇬🇧": [
-        {"Brand": "Barbour", "Model": "Beaufort", "Buy": "£25", "Sell": "£90+", "Vel": "🔥 Fast"},
-        {"Brand": "Stone Island", "Model": "Sweater", "Buy": "£40", "Sell": "£120+", "Vel": "⚡ Fast"},
-    ]
-}
 
 # ==========================================
 # 4. SILENT AUTO-SAVE SYSTEM
@@ -453,3 +448,4 @@ elif st.session_state.view == 'settings':
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
 
             st.rerun()
+
