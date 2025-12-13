@@ -37,6 +37,11 @@ VALID_LICENSE_KEYS = ["PRO2025", "ADMIN", "MONEY"]
 # ==========================================
 # 3. LIVE DATABASE (AUTO-UPDATES FROM GITHUB)
 # ==========================================
+# ==========================================
+# 3. LIVE DATABASE (ROBUST CONNECTION)
+# ==========================================
+import requests # <--- Make sure this is imported at the top, or just let Streamlit handle it
+
 REGIONS = {
     "Canada 🇨🇦": {"sym": "$", "ebay": "ebay.ca", "posh": "poshmark.ca", "ship_def": 15.00, "trends": ["Roots", "Arc'teryx", "Lululemon"]},
     "USA 🇺🇸": {"sym": "$", "ebay": "ebay.com", "posh": "poshmark.com", "ship_def": 8.00, "trends": ["Carhartt", "Patagonia", "Nike"]},
@@ -45,20 +50,23 @@ REGIONS = {
     "Australia 🇦🇺": {"sym": "$", "ebay": "ebay.com.au", "posh": "poshmark.com.au", "ship_def": 12.00, "trends": ["R.M. Williams", "Spell & Gypsy", "AFL Gear"]}
 }
 
-# This link points to your raw JSON file so the app can read it
 DB_URL = "https://raw.githubusercontent.com/FocusOS-dev/Thrift-Hunter/main/database.json"
 
-@st.cache_data(ttl=300) # Checks for updates every 5 minutes
+@st.cache_data(ttl=600)
 def get_live_data():
     try:
-        # Tries to read your live file from GitHub
-        df = pd.read_json(DB_URL)
-        return df['blacklist'].tolist(), df['vault'].to_dict()
-    except:
-        # Backup data if GitHub is down
-        return [
-            {"Brand": "SHEIN", "Risk": "Extreme", "Reason": "Offline Mode"}
-        ], {"Canada 🇨🇦": []}
+        # Use requests instead of pandas for better JSON handling
+        response = requests.get(DB_URL)
+        if response.status_code == 200:
+            data = response.json()
+            return data.get('blacklist', []), data.get('vault', {})
+        else:
+            st.error(f"Database Connection Failed: {response.status_code}")
+            return [], {}
+    except Exception as e:
+        st.error(f"Error reading database: {e}")
+        return [], {}
+
 
 BLACKLIST_DB, VAULT_DB = get_live_data()
 
@@ -448,3 +456,4 @@ elif st.session_state.view == 'settings':
             st.session_state.clear()
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
             st.rerun()
+
