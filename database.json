@@ -8,6 +8,7 @@
         "Canada 🇨🇦": [
             {"Brand": "Arc'teryx", "Model": "Beta Jacket", "Buy": "$40", "Sell": "$250+", "Vel": "⚡ Fast"},
             {"Brand": "Roots", "Model": "Beaver Hoodie", "Buy": "$15", "Sell": "$60+", "Vel": "🔥 Fast"}
+            {"Brand": "TEST ITEM", "Model": "Magic Update", "Buy": "$0", "Sell": "$1000", "Vel": "⚡ Instant"},
         ],
         "USA 🇺🇸": [
             {"Brand": "Carhartt", "Model": "Detroit J97", "Buy": "$30", "Sell": "$200+", "Vel": "⚡ Fast"}
