@@ -1,0 +1,16 @@
+{
+    "blacklist": [
+        {"Brand": "SHEIN / ROMWE", "Risk": "Extreme", "Reason": "Zero resale value."},
+        {"Brand": "George (Walmart)", "Risk": "High", "Reason": "Market saturation."},
+        {"Brand": "LuLaRoe", "Risk": "High", "Reason": "Trend dead since 2018."}
+    ],
+    "vault": {
+        "Canada 🇨🇦": [
+            {"Brand": "Arc'teryx", "Model": "Beta Jacket", "Buy": "$40", "Sell": "$250+", "Vel": "⚡ Fast"},
+            {"Brand": "Roots", "Model": "Beaver Hoodie", "Buy": "$15", "Sell": "$60+", "Vel": "🔥 Fast"}
+        ],
+        "USA 🇺🇸": [
+            {"Brand": "Carhartt", "Model": "Detroit J97", "Buy": "$30", "Sell": "$200+", "Vel": "⚡ Fast"}
+        ]
+    }
+}
