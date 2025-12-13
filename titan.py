@@ -63,8 +63,7 @@ def get_live_data():
             {"Brand": "SHEIN", "Risk": "Extreme", "Reason": "Offline Mode"}
         ], {"Canada 🇨🇦": []}
 
-# Load the data into variables
-BLACKLIST_DB, VAULT_DB = get_live_data(),
+
 
 # ==========================================
 # 4. SILENT AUTO-SAVE SYSTEM
@@ -448,4 +447,5 @@ elif st.session_state.view == 'settings':
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
 
             st.rerun()
+
 
