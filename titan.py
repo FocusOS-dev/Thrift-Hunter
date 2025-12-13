@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. USER LINKS (EDIT HERE)
+# 2. USER LINKS
 # ==========================================
 PAYMENT_LINKS = {
     "monthly": "https://thrifthunter.gumroad.com/l/entml", 
@@ -35,7 +35,7 @@ AFFILIATE_LINKS = {
 VALID_LICENSE_KEYS = ["PRO2025", "ADMIN", "MONEY"]
 
 # ==========================================
-# 3. DATABASES
+# 3. LIVE DATABASE (AUTO-UPDATES FROM GITHUB)
 # ==========================================
 REGIONS = {
     "Canada 🇨🇦": {"sym": "$", "ebay": "ebay.ca", "posh": "poshmark.ca", "ship_def": 15.00, "trends": ["Roots", "Arc'teryx", "Lululemon"]},
@@ -45,9 +45,6 @@ REGIONS = {
     "Australia 🇦🇺": {"sym": "$", "ebay": "ebay.com.au", "posh": "poshmark.com.au", "ship_def": 12.00, "trends": ["R.M. Williams", "Spell & Gypsy", "AFL Gear"]}
 }
 
-# ==========================================
-# 3. LIVE DATABASE (AUTO-UPDATES FROM GITHUB)
-# ==========================================
 # This link points to your raw JSON file so the app can read it
 DB_URL = "https://raw.githubusercontent.com/FocusOS-dev/Thrift-Hunter/main/database.json"
 
@@ -63,7 +60,7 @@ def get_live_data():
             {"Brand": "SHEIN", "Risk": "Extreme", "Reason": "Offline Mode"}
         ], {"Canada 🇨🇦": []}
 
-
+BLACKLIST_DB, VAULT_DB = get_live_data()
 
 # ==========================================
 # 4. SILENT AUTO-SAVE SYSTEM
@@ -146,7 +143,8 @@ def calculate_period_profit(period):
 
 def get_live_news():
     now = datetime.datetime.now()
-    item = random.choice(R_DATA["trends"])
+    trends = R_DATA["trends"]
+    item = random.choice(trends)
     return [
         f"🔴 LIVE: Market Activity HIGH",
         f"🔥 BOLO: {item} selling fast in {st.session_state.region}",
@@ -234,6 +232,10 @@ with st.sidebar:
 # 8. DASHBOARD
 # ==========================================
 if st.session_state.view == 'dashboard':
+    
+    # 🚧 BETA WARNING (ADDED HERE)
+    st.info("🚧 **PUBLIC BETA:** You are using an early version of Thrift Hunter. Features and database items are being updated daily.")
+    
     news = get_live_news()
     content = "".join([f'<div class="ticker-item">{item}</div>' for item in news * 4])
     st.markdown(f'<div class="ticker-wrap"><div class="ticker-move">{content}</div></div>', unsafe_allow_html=True)
@@ -445,7 +447,4 @@ elif st.session_state.view == 'settings':
         if st.button("Reset App"): 
             st.session_state.clear()
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
-
             st.rerun()
-
-
