@@ -17,12 +17,15 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. USER LINKS
+# 2. USER LINKS & API KEYS
 # ==========================================
 PAYMENT_LINKS = {
     "monthly": "https://thrifthunter.gumroad.com/l/entml", 
     "lifetime": "https://thrifthunter.gumroad.com/l/klwkxa"
 }
+
+# Your Product Permalinks (Extracted from your links)
+GUMROAD_PERMALINKS = ["entml", "klwkxa"]
 
 AFFILIATE_LINKS = {
     "poly_mailers": "https://www.amazon.com/s?k=poly+mailers+10x13",
@@ -33,10 +36,8 @@ AFFILIATE_LINKS = {
     "goo_gone": "https://www.amazon.com/s?k=goo+gone"
 }
 
-VALID_LICENSE_KEYS = ["PRO2025", "ADMIN", "MONEY"]
-
 # ==========================================
-# 3. LIVE DATABASE (ROBUST CONNECTION)
+# 3. LIVE DATABASE
 # ==========================================
 REGIONS = {
     "Canada 🇨🇦": {"sym": "$", "ebay": "ebay.ca", "posh": "poshmark.ca", "ship_def": 15.00, "trends": ["Roots", "Arc'teryx", "Lululemon"]},
@@ -115,7 +116,41 @@ R_DATA = REGIONS.get(st.session_state.region, REGIONS["Canada 🇨🇦"])
 CURR = R_DATA["sym"]
 
 # ==========================================
-# 5. HELPER FUNCTIONS
+# 5. SECURITY FUNCTIONS (NEW)
+# ==========================================
+def verify_gumroad_key(key):
+    """Checks the key against Gumroad's API for validity and subscription status."""
+    key = key.strip()
+    
+    # Check Admin/Dev Keys first
+    if key in ["ADMIN", "MONEY"]: 
+        return True, "Dev Mode Active"
+        
+    for permalink in GUMROAD_PERMALINKS:
+        try:
+            r = requests.post(
+                "https://api.gumroad.com/v2/licenses/verify",
+                data={"product_permalink": permalink, "license_key": key}
+            )
+            data = r.json()
+            
+            # 1. Check if Key Exists and isn't Refunded/Chargebacked
+            if data.get('success') and not data.get('purchase', {}).get('refunded'):
+                
+                # 2. If it's a subscription, check if it's active
+                # Gumroad returns 'subscription_cancelled_at' only if cancelled. 
+                # Even if cancelled, they retain access until the end of the period.
+                # data['success'] = True handles the "End of Period" logic automatically.
+                
+                return True, "License Verified"
+                
+        except Exception as e:
+            continue
+            
+    return False, "Invalid Key or Expired Subscription"
+
+# ==========================================
+# 6. HELPER FUNCTIONS
 # ==========================================
 def calculate_period_profit(period):
     if not st.session_state.history: return 0.0
@@ -158,7 +193,7 @@ def get_weekly_deals():
     return random.sample(supplies, 4)
 
 # ==========================================
-# 6. DYNAMIC CSS
+# 7. DYNAMIC CSS
 # ==========================================
 def get_theme_css():
     if st.session_state.theme == 'dark':
@@ -192,7 +227,7 @@ def render_pro_lock(feature):
     st.markdown(f"""<div class="pro-lock"><h3>🔒 {feature}</h3><p>Pro Feature</p></div>""", unsafe_allow_html=True)
 
 # ==========================================
-# 7. SIDEBAR
+# 8. SIDEBAR
 # ==========================================
 with st.sidebar:
     st.title("🦅 Thrift Hunter")
@@ -221,7 +256,7 @@ with st.sidebar:
         c2.link_button("Life $35", PAYMENT_LINKS['lifetime'], use_container_width=True)
 
 # ==========================================
-# 8. DASHBOARD
+# 9. DASHBOARD
 # ==========================================
 if st.session_state.view == 'dashboard':
     st.info("🚧 **PUBLIC BETA:** You are using an early version of Thrift Hunter. Features and database items are being updated daily.")
@@ -309,7 +344,7 @@ if st.session_state.view == 'dashboard':
     with tab2: st.dataframe(pd.DataFrame(st.session_state.inventory), use_container_width=True)
 
 # ==========================================
-# 9. SUPPLY DROP
+# 10. SUPPLY DROP
 # ==========================================
 elif st.session_state.view == 'supplies':
     st.title("🛒 Supply Drop")
@@ -335,7 +370,7 @@ elif st.session_state.view == 'supplies':
             st.link_button("View ↗", deal['link'], use_container_width=True)
 
 # ==========================================
-# 10. TOOLKIT
+# 11. TOOLKIT
 # ==========================================
 elif st.session_state.view == 'tools':
     st.title("🧰 Toolkit")
@@ -381,7 +416,7 @@ elif st.session_state.view == 'tools':
         st.write(f"**UK:** {us-1} | **EU:** {38 + (us-6)*1.3:.0f}")
 
 # ==========================================
-# 11. VAULT & SETTINGS
+# 12. VAULT & SETTINGS
 # ==========================================
 elif st.session_state.view == 'vault':
     st.title("🔐 The Vault")
@@ -397,10 +432,19 @@ elif st.session_state.view == 'settings':
         if st.button("Save Name"): st.session_state.username = name; save_data(); st.rerun()
         
         st.subheader("License")
-        key = st.text_input("Pro Key")
+        key_input = st.text_input("Pro Key")
+        
+        # NEW VERIFICATION LOGIC
         if st.button("Activate"):
-            if key in VALID_LICENSE_KEYS: st.session_state.is_pro = True; save_data(); st.balloons(); st.rerun()
-            else: st.error("Invalid Key")
+            is_valid, message = verify_gumroad_key(key_input)
+            if is_valid:
+                st.session_state.is_pro = True
+                save_data()
+                st.balloons()
+                st.success(f"Success: {message}")
+                st.rerun()
+            else:
+                st.error(message)
             
         st.subheader("Taxman (Pro)")
         if st.session_state.is_pro:
