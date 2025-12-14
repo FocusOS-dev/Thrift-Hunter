@@ -24,7 +24,7 @@ PAYMENT_LINKS = {
     "lifetime": "https://thrifthunter.gumroad.com/l/klwkxa"
 }
 
-# Your Product Permalinks (Extracted from your links)
+# Your Product Permalinks (Make sure these match your Gumroad product IDs)
 GUMROAD_PERMALINKS = ["entml", "klwkxa"]
 
 AFFILIATE_LINKS = {
@@ -116,14 +116,14 @@ R_DATA = REGIONS.get(st.session_state.region, REGIONS["Canada 🇨🇦"])
 CURR = R_DATA["sym"]
 
 # ==========================================
-# 5. SECURITY FUNCTIONS (NEW)
+# 5. SECURITY FUNCTIONS
 # ==========================================
 def verify_gumroad_key(key):
     """Checks the key against Gumroad's API for validity and subscription status."""
     key = key.strip()
     
-    # Check Admin/Dev Keys first
-    if key in ["ADMIN", "MONEY", "91F4A7BD-58954FF8-8B73AB40-DE4AFCF2"]:
+    # Check Admin/Dev Keys first (And your bypass key)
+    if key in ["ADMIN", "MONEY"]: 
         return True, "Dev Mode Active"
         
     for permalink in GUMROAD_PERMALINKS:
@@ -133,17 +133,8 @@ def verify_gumroad_key(key):
                 data={"product_permalink": permalink, "license_key": key}
             )
             data = r.json()
-            
-            # 1. Check if Key Exists and isn't Refunded/Chargebacked
             if data.get('success') and not data.get('purchase', {}).get('refunded'):
-                
-                # 2. If it's a subscription, check if it's active
-                # Gumroad returns 'subscription_cancelled_at' only if cancelled. 
-                # Even if cancelled, they retain access until the end of the period.
-                # data['success'] = True handles the "End of Period" logic automatically.
-                
                 return True, "License Verified"
-                
         except Exception as e:
             continue
             
@@ -259,7 +250,9 @@ with st.sidebar:
 # 9. DASHBOARD
 # ==========================================
 if st.session_state.view == 'dashboard':
-    st.info("🚧 **PUBLIC BETA:** You are using an early version of Thrift Hunter. Features and database items are being updated daily.")
+    
+    # NEW PROFESSIONAL BETA WARNING 👇
+    st.info("🚧 **PUBLIC BETA:** You are using an early access build. Please note that some features are experimental and may experience occasional issues as we work to improve the app daily.")
     
     news = get_live_news()
     content = "".join([f'<div class="ticker-item">{item}</div>' for item in news * 4])
@@ -434,7 +427,6 @@ elif st.session_state.view == 'settings':
         st.subheader("License")
         key_input = st.text_input("Pro Key")
         
-        # NEW VERIFICATION LOGIC
         if st.button("Activate"):
             is_valid, message = verify_gumroad_key(key_input)
             if is_valid:
@@ -470,4 +462,3 @@ elif st.session_state.view == 'settings':
             st.session_state.clear()
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
             st.rerun()
-
