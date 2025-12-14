@@ -24,7 +24,7 @@ PAYMENT_LINKS = {
     "lifetime": "https://thrifthunter.gumroad.com/l/klwkxa"
 }
 
-# Your Product Permalinks (Make sure these match your Gumroad product IDs)
+# Your Product Permalinks (Must match Gumroad)
 GUMROAD_PERMALINKS = ["entml", "klwkxa"]
 
 AFFILIATE_LINKS = {
@@ -119,10 +119,7 @@ CURR = R_DATA["sym"]
 # 5. SECURITY FUNCTIONS
 # ==========================================
 def verify_gumroad_key(key):
-    """Checks the key against Gumroad's API for validity and subscription status."""
     key = key.strip()
-    
-    # Check Admin/Dev Keys first (And your bypass key)
     if key in ["ADMIN", "MONEY"]: 
         return True, "Dev Mode Active"
         
@@ -135,9 +132,8 @@ def verify_gumroad_key(key):
             data = r.json()
             if data.get('success') and not data.get('purchase', {}).get('refunded'):
                 return True, "License Verified"
-        except Exception as e:
+        except:
             continue
-            
     return False, "Invalid Key or Expired Subscription"
 
 # ==========================================
@@ -222,6 +218,13 @@ def render_pro_lock(feature):
 # ==========================================
 with st.sidebar:
     st.title("🦅 Thrift Hunter")
+    
+    # STATUS BADGE
+    if st.session_state.is_pro:
+        st.success("✅ **PRO MEMBER**")
+    else:
+        st.warning("🐣 **FREE MEMBER**")
+
     st.caption(f"User: {st.session_state.username}")
     
     st.write("🌍 **Region**")
@@ -237,6 +240,8 @@ with st.sidebar:
     if st.button(label, use_container_width=True):
         if st.session_state.is_pro: st.session_state.view = 'vault'; st.rerun()
         else: st.toast("Pro Required", icon="🔒")
+    
+    if st.button("❓ Help & Contact", use_container_width=True): st.session_state.view = 'help'; st.rerun()
     if st.button("⚙️ Settings", use_container_width=True): st.session_state.view = 'settings'; st.rerun()
     
     st.divider()
@@ -250,9 +255,7 @@ with st.sidebar:
 # 9. DASHBOARD
 # ==========================================
 if st.session_state.view == 'dashboard':
-    
-    # NEW PROFESSIONAL BETA WARNING 👇
-    st.info("🚧 **PUBLIC BETA:** You are using an early access build. Please note that some features are experimental and may experience occasional issues as we work to improve the app daily.")
+    st.info("🚧 **PUBLIC BETA:** You are using an early access build. Features are updated daily.")
     
     news = get_live_news()
     content = "".join([f'<div class="ticker-item">{item}</div>' for item in news * 4])
@@ -363,28 +366,69 @@ elif st.session_state.view == 'supplies':
             st.link_button("View ↗", deal['link'], use_container_width=True)
 
 # ==========================================
-# 11. TOOLKIT
+# 11. TOOLKIT (UPGRADED)
 # ==========================================
 elif st.session_state.view == 'tools':
     st.title("🧰 Toolkit")
     t1, t2, t3, t4, t5 = st.tabs(["📝 Titles", "📄 Desc", "🎒 Bulk", "⚖️ Offer", "📏 Size"])
     
     with t1:
-        st.subheader("Title Builder")
-        t_base = st.text_input("Brand/Item", placeholder="Nike Hoodie")
+        st.subheader("eBay Title Builder")
+        st.caption("Maximize SEO keywords for better ranking.")
+        
         c1, c2 = st.columns(2)
-        gender = c1.selectbox("Gender", ["Men's", "Women's"])
-        size = c2.text_input("Size", "L")
-        keys = st.multiselect("Keywords", ["Vintage", "90s", "Streetwear", "Rare"])
-        st.code(f"{t_base} {gender} {' '.join(keys)} Size {size}", language="text")
+        brand = c1.text_input("Brand", placeholder="Nike")
+        item = c2.text_input("Item Name", placeholder="Air Hoodie")
+        
+        c3, c4, c5 = st.columns(3)
+        gender = c3.selectbox("Gender", ["Men's", "Women's", "Unisex"])
+        size = c4.text_input("Size", "L")
+        color = c5.text_input("Color", "Black")
+        
+        c6, c7 = st.columns(2)
+        material = c6.text_input("Material", placeholder="Cotton, Silk, Wool")
+        era = c7.selectbox("Era/Style", ["Modern", "Vintage 90s", "Y2K", "Streetwear", "Gorpcore"])
+        
+        features = st.multiselect("Features", ["Rare", "Logo", "Zip Up", "Spellout", "Distressed"])
+        
+        if brand and item:
+            final_title = f"{brand} {item} {gender} {size} {color} {era} {material} {' '.join(features)}".strip()
+            st.markdown("### Result:")
+            st.code(final_title, language="text")
+            st.caption(f"Chars: {len(final_title)}/80 (eBay Limit)")
         
     with t2:
         if st.session_state.is_pro:
-            st.subheader("Description Gen")
-            d_item = st.text_input("Item", "Tee")
-            d_cond = st.selectbox("Condition", ["Excellent", "Good", "Fair"])
-            if st.button("Generate"):
-                st.text_area("Result", f"**ITEM:** {d_item}\n**CONDITION:** {d_cond}\n\nFast shipping!", height=100)
+            st.subheader("Pro Description Generator")
+            c1, c2 = st.columns(2)
+            d_item = c1.text_input("Item Title", "Vintage Tee")
+            d_cond = c2.selectbox("Condition", ["Excellent Pre-owned", "Like New", "Good Vintage Condition", "Fair / Distressed"])
+            
+            c3, c4 = st.columns(2)
+            pit = c3.text_input("Pit to Pit", "22")
+            length = c4.text_input("Length", "28")
+            
+            defects = st.text_input("Defects (if any)", "None")
+            
+            if st.button("Generate Template"):
+                template = f"""
+**ITEM:** {d_item}
+
+**CONDITION:** {d_cond}
+Defects: {defects}
+
+**MEASUREMENTS:**
+📏 Pit to Pit: {pit}"
+📏 Length: {length}"
+
+**DESCRIPTION:**
+Genuine {d_item}. Great addition to any wardrobe. Please see photos for exact condition and details.
+
+✅ Fast Shipping
+✅ Cleaned & Steamed
+✅ Trusted Seller
+                """
+                st.text_area("Copy & Paste", template, height=300)
         else: render_pro_lock("Description Gen")
             
     with t3:
@@ -409,7 +453,42 @@ elif st.session_state.view == 'tools':
         st.write(f"**UK:** {us-1} | **EU:** {38 + (us-6)*1.3:.0f}")
 
 # ==========================================
-# 12. VAULT & SETTINGS
+# 12. HELP & CONTACT (NEW)
+# ==========================================
+elif st.session_state.view == 'help':
+    st.title("❓ Help & Support")
+    
+    st.info("👋 Welcome to Thrift Hunter. Here is how to get started.")
+    
+    with st.expander("📱 How to Install on iPhone/Android"):
+        st.write("1. Open this website in Safari (iOS) or Chrome (Android).")
+        st.write("2. Tap the 'Share' or 'Menu' button.")
+        st.write("3. Select 'Add to Home Screen'.")
+        st.write("4. Now it works just like a native app!")
+
+    with st.expander("🔐 How to Unlock Pro Features"):
+        st.write("1. Click 'Go Pro' in the sidebar.")
+        st.write("2. Purchase a Lifetime or Monthly license.")
+        st.write("3. Check your email for the unique License Key.")
+        st.write("4. Go to **Settings**, paste the key, and click Activate.")
+    
+    with st.expander("🛒 How to use the Profit Engine"):
+        st.write("1. Enter your Buy Cost.")
+        st.write("2. Enter the Selling Price.")
+        st.write("3. The app automatically deducts fees (13%) and Shipping.")
+        st.write("4. Click 'Add to Inventory' to save it.")
+        
+    st.divider()
+    st.subheader("📧 Contact Support")
+    st.write("Found a bug? Have a feature request? Email our support team directly.")
+    st.code("obaid.business2006@gmail.com")
+    st.caption("Response time: 24-48 hours.")
+    
+    st.markdown("---")
+    st.caption("Thrift Hunter OS v1.0.4 (Beta) | Secured by Gumroad | Built for Resellers")
+
+# ==========================================
+# 13. VAULT & SETTINGS
 # ==========================================
 elif st.session_state.view == 'vault':
     st.title("🔐 The Vault")
