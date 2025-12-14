@@ -4,6 +4,7 @@ import datetime
 import json
 import os
 import random
+import requests
 
 # ==========================================
 # 1. APP CONFIGURATION
@@ -35,13 +36,8 @@ AFFILIATE_LINKS = {
 VALID_LICENSE_KEYS = ["PRO2025", "ADMIN", "MONEY"]
 
 # ==========================================
-# 3. LIVE DATABASE (AUTO-UPDATES FROM GITHUB)
-# ==========================================
-# ==========================================
 # 3. LIVE DATABASE (ROBUST CONNECTION)
 # ==========================================
-import requests # <--- Make sure this is imported at the top, or just let Streamlit handle it
-
 REGIONS = {
     "Canada 🇨🇦": {"sym": "$", "ebay": "ebay.ca", "posh": "poshmark.ca", "ship_def": 15.00, "trends": ["Roots", "Arc'teryx", "Lululemon"]},
     "USA 🇺🇸": {"sym": "$", "ebay": "ebay.com", "posh": "poshmark.com", "ship_def": 8.00, "trends": ["Carhartt", "Patagonia", "Nike"]},
@@ -55,18 +51,14 @@ DB_URL = "https://raw.githubusercontent.com/FocusOS-dev/Thrift-Hunter/main/datab
 @st.cache_data(ttl=600)
 def get_live_data():
     try:
-        # Use requests instead of pandas for better JSON handling
         response = requests.get(DB_URL)
         if response.status_code == 200:
             data = response.json()
             return data.get('blacklist', []), data.get('vault', {})
         else:
-            st.error(f"Database Connection Failed: {response.status_code}")
             return [], {}
-    except Exception as e:
-        st.error(f"Error reading database: {e}")
+    except:
         return [], {}
-
 
 BLACKLIST_DB, VAULT_DB = get_live_data()
 
@@ -76,17 +68,13 @@ BLACKLIST_DB, VAULT_DB = get_live_data()
 SAVE_FILE = "titan.json"
 
 def load_data():
-    """Loads data silently on startup."""
     if os.path.exists(SAVE_FILE):
         try:
-            with open(SAVE_FILE, 'r') as f:
-                return json.load(f)
-        except:
-            return {}
+            with open(SAVE_FILE, 'r') as f: return json.load(f)
+        except: return {}
     return {}
 
 def save_data():
-    """Saves data silently after every change."""
     state_data = {
         'history': st.session_state.history,
         'inventory': st.session_state.inventory,
@@ -102,8 +90,7 @@ def save_data():
         'tax_rate': st.session_state.tax_rate,
         'sources': st.session_state.sources
     }
-    with open(SAVE_FILE, 'w') as f:
-        json.dump(state_data, f)
+    with open(SAVE_FILE, 'w') as f: json.dump(state_data, f)
 
 # INITIALIZE STATE
 if 'init' not in st.session_state:
@@ -124,7 +111,6 @@ if 'init' not in st.session_state:
     st.session_state.sources = data.get('sources', ["Goodwill", "Value Village", "Bins", "FB Marketplace", "Other"])
     st.session_state.view = 'dashboard'
 
-# GLOBAL VARIABLES
 R_DATA = REGIONS.get(st.session_state.region, REGIONS["Canada 🇨🇦"])
 CURR = R_DATA["sym"]
 
@@ -136,7 +122,6 @@ def calculate_period_profit(period):
     df = pd.DataFrame(st.session_state.history)
     df['Date'] = pd.to_datetime(df['Date'], format='mixed', errors='coerce')
     now = datetime.datetime.now()
-    
     if period == 'Weekly':
         start = now - datetime.timedelta(days=now.weekday())
         start = start.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -150,7 +135,6 @@ def calculate_period_profit(period):
     return df.loc[mask, 'Profit'].sum()
 
 def get_live_news():
-    now = datetime.datetime.now()
     trends = R_DATA["trends"]
     item = random.choice(trends)
     return [
@@ -240,8 +224,6 @@ with st.sidebar:
 # 8. DASHBOARD
 # ==========================================
 if st.session_state.view == 'dashboard':
-    
-    # 🚧 BETA WARNING (ADDED HERE)
     st.info("🚧 **PUBLIC BETA:** You are using an early version of Thrift Hunter. Features and database items are being updated daily.")
     
     news = get_live_news()
@@ -307,10 +289,8 @@ if st.session_state.view == 'dashboard':
         sold = c_in2.number_input("Sell", 0.0, 5000.0, 45.0)
         ship = st.number_input("Ship", 0.0, 200.0, R_DATA['ship_def'])
         
-        # Source Selection (Updated)
         src = st.selectbox("Source", st.session_state.sources)
-        if src == "Other":
-            src = st.text_input("Enter Source Name")
+        if src == "Other": src = st.text_input("Enter Source Name")
         
         profit = sold - cost - ship - (sold * 0.13)
         st.markdown(f"""<div class="profit-card"><h1 style="margin:0;">{CURR}{profit:.2f}</h1><p style="margin:0;">NET PROFIT</p></div>""", unsafe_allow_html=True)
@@ -318,14 +298,10 @@ if st.session_state.view == 'dashboard':
         b1, b2 = st.columns(2)
         if b1.button("📦 Add to Inventory"):
             st.session_state.inventory.append({"Date": str(datetime.date.today()), "Item": term if term else "Item", "Cost": cost, "Expected": sold, "Source": src})
-            st.session_state.items_scanned += 1
-            save_data()
-            st.toast("Saved!")
+            st.session_state.items_scanned += 1; save_data(); st.toast("Saved!")
         if b2.button("💰 Mark Sold", type="primary"):
             st.session_state.history.insert(0, {"Date": str(datetime.date.today()), "Item": term if term else "Item", "Profit": profit, "Source": src})
-            st.session_state.items_scanned += 1
-            save_data()
-            st.rerun()
+            st.session_state.items_scanned += 1; save_data(); st.rerun()
 
     st.divider()
     tab1, tab2 = st.tabs(["📜 History", "📦 Inventory"])
@@ -343,16 +319,11 @@ elif st.session_state.view == 'supplies':
         name = c1.text_input("Item")
         link = c2.text_input("Link")
         if c3.button("Add"): 
-            st.session_state.watchlist.append({"name": name, "link": link})
-            save_data()
-            st.rerun()
+            st.session_state.watchlist.append({"name": name, "link": link}); save_data(); st.rerun()
         for item in st.session_state.watchlist:
             c_w1, c_w2 = st.columns([4,1])
             c_w1.link_button(f"Check {item['name']}", item['link'])
-            if c_w2.button("❌", key=item['name']): 
-                st.session_state.watchlist.remove(item)
-                save_data()
-                st.rerun()
+            if c_w2.button("❌", key=item['name']): st.session_state.watchlist.remove(item); save_data(); st.rerun()
 
     st.divider()
     st.subheader(f"📅 Weekly Deals")
@@ -419,7 +390,6 @@ elif st.session_state.view == 'vault':
 
 elif st.session_state.view == 'settings':
     st.header("⚙️ Settings")
-    
     c1, c2 = st.columns(2)
     with c1:
         st.subheader("Profile")
@@ -456,4 +426,3 @@ elif st.session_state.view == 'settings':
             st.session_state.clear()
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
             st.rerun()
-
