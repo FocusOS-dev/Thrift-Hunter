@@ -1,16 +1,48 @@
 {
     "blacklist": [
-        {"Brand": "SHEIN / ROMWE", "Risk": "Extreme", "Reason": "Zero resale value."},
-        {"Brand": "George (Walmart)", "Risk": "High", "Reason": "Market saturation."},
-        {"Brand": "LuLaRoe", "Risk": "High", "Reason": "Trend dead since 2018."}
+        {"Brand": "SHEIN / ROMWE", "Risk": "Extreme", "Reason": "Zero resale value. Do not buy."},
+        {"Brand": "George (Walmart)", "Risk": "High", "Reason": "Market saturation. Margins too low."},
+        {"Brand": "LuLaRoe", "Risk": "High", "Reason": "Trend dead since 2018. Hard to move."},
+        {"Brand": "H&M (Basic)", "Risk": "Medium", "Reason": "Fast fashion. Only buy 'Premium Quality' line."},
+        {"Brand": "Forever 21", "Risk": "High", "Reason": "Poor fabrics, low demand."},
+        {"Brand": "Dolce & Gabbana (Fake)", "Risk": "Extreme", "Reason": "Most commonly faked brand. Verify tags."},
+        {"Brand": "True Religion (New)", "Risk": "Medium", "Reason": "Only older 'Made in USA' pairs sell well."}
     ],
     "vault": {
         "Canada 🇨🇦": [
-            {"Brand": "Arc'teryx", "Model": "Beta Jacket", "Buy": "$40", "Sell": "$250+", "Vel": "⚡ Fast"},
-            {"Brand": "Roots", "Model": "Beaver Hoodie", "Buy": "$15", "Sell": "$60+", "Vel": "🔥 Fast"}
+            {"Brand": "Arc'teryx", "Model": "Beta/Alpha Jacket", "Buy": "$40-$80", "Sell": "$300+", "Vel": "⚡ Instant"},
+            {"Brand": "Roots", "Model": "Beaver Canoe Hoodie (Vintage)", "Buy": "$15", "Sell": "$60+", "Vel": "🔥 Fast"},
+            {"Brand": "Aritzia / TNA", "Model": "Super Puff Parka", "Buy": "$50", "Sell": "$150+", "Vel": "⚡ Fast"},
+            {"Brand": "Sorel", "Model": "Caribou Wool Boots", "Buy": "$20", "Sell": "$80+", "Vel": "🔥 Winter"},
+            {"Brand": "Lululemon", "Model": "Scuba Hoodie (Oversized)", "Buy": "$30", "Sell": "$90+", "Vel": "🔥 Fast"},
+            {"Brand": "Kanuk", "Model": "Vintage Parka", "Buy": "$40", "Sell": "$200+", "Vel": "🐢 Slow/High"}
         ],
         "USA 🇺🇸": [
-            {"Brand": "Carhartt", "Model": "Detroit J97", "Buy": "$30", "Sell": "$200+", "Vel": "⚡ Fast"}
+            {"Brand": "Carhartt", "Model": "Detroit Jacket (J97)", "Buy": "$30", "Sell": "$250+", "Vel": "⚡ Instant"},
+            {"Brand": "Patagonia", "Model": "Synchilla Snap-T (Pattern)", "Buy": "$15", "Sell": "$80+", "Vel": "🔥 Fast"},
+            {"Brand": "Ralph Lauren", "Model": "Purple Label / Bear Knit", "Buy": "$10", "Sell": "$300+", "Vel": "💎 Rare"},
+            {"Brand": "Levi's", "Model": "Orange Tab (Vintage)", "Buy": "$20", "Sell": "$100+", "Vel": "🔥 Steady"},
+            {"Brand": "Filson", "Model": "Mackinaw Cruiser", "Buy": "$50", "Sell": "$250+", "Vel": "⚡ Fast"},
+            {"Brand": "Pendleton", "Model": "Wool Flannel (Board Shirt)", "Buy": "$10", "Sell": "$60+", "Vel": "🔥 Fast"}
+        ],
+        "UK 🇬🇧": [
+            {"Brand": "Barbour", "Model": "Beaufort / Bedale (Wax)", "Buy": "£25", "Sell": "£100+", "Vel": "🔥 Fast"},
+            {"Brand": "Stone Island", "Model": "Ghost Piece / Badge", "Buy": "£40", "Sell": "£150+", "Vel": "⚡ Instant"},
+            {"Brand": "Dr. Martens", "Model": "Made in England (Vintage)", "Buy": "£30", "Sell": "£90+", "Vel": "🔥 Steady"},
+            {"Brand": "Burberry", "Model": "Trench Coat (Nova Check)", "Buy": "£50", "Sell": "£200+", "Vel": "🐢 Slow/High"},
+            {"Brand": "Belstaff", "Model": "Trialmaster Jacket", "Buy": "£40", "Sell": "£180+", "Vel": "🔥 Fast"}
+        ],
+        "Europe 🇪🇺": [
+            {"Brand": "Le Creuset", "Model": "Dutch Oven (Vintage)", "Buy": "€20", "Sell": "€100+", "Vel": "🔥 Steady"},
+            {"Brand": "Adidas", "Model": "Ventex (80s Vintage)", "Buy": "€15", "Sell": "€70+", "Vel": "⚡ Fast"},
+            {"Brand": "Lacoste", "Model": "Chemise (Made in France)", "Buy": "€10", "Sell": "€60+", "Vel": "🔥 Steady"},
+            {"Brand": "Moncler", "Model": "Puffer Jacket", "Buy": "€50", "Sell": "€300+", "Vel": "⚡ Instant"}
+        ],
+        "Australia 🇦🇺": [
+            {"Brand": "R.M. Williams", "Model": "Craftsman Boots", "Buy": "$50", "Sell": "$300+", "Vel": "⚡ Instant"},
+            {"Brand": "Spell & Gypsy", "Model": "Boho Dress", "Buy": "$30", "Sell": "$150+", "Vel": "🔥 Fast"},
+            {"Brand": "Coogi", "Model": "Textured Sweater", "Buy": "$40", "Sell": "$400+", "Vel": "💎 Rare"},
+            {"Brand": "Country Road", "Model": "Heritage Sweat", "Buy": "$15", "Sell": "$50+", "Vel": "🔥 Fast"}
         ]
     }
 }
