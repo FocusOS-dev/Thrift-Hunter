@@ -166,19 +166,6 @@ def get_live_news():
         f"💰 WIN: User just flipped a jacket for {CURR}120 profit"
     ]
 
-def get_weekly_deals():
-    week_num = datetime.datetime.now().isocalendar()[1]
-    random.seed(week_num) 
-    supplies = [
-        {"icon": "📦", "name": "Poly Mailers", "deal": "20% Off", "link": AFFILIATE_LINKS['poly_mailers']},
-        {"icon": "🏷️", "name": "Thermal Labels", "deal": "Bulk Pack", "link": AFFILIATE_LINKS['thermal_printer']},
-        {"icon": "⚖️", "name": "Scale", "deal": "Pro Accuracy", "link": AFFILIATE_LINKS['scale']},
-        {"icon": "💡", "name": "Ring Light", "deal": "Photo Kit", "link": AFFILIATE_LINKS['ring_light']},
-        {"icon": "🧼", "name": "Goo Gone", "deal": "Cleaner", "link": AFFILIATE_LINKS['goo_gone']},
-        {"icon": "📦", "name": "HD Tape", "deal": "6 Pack", "link": AFFILIATE_LINKS['tape']},
-    ]
-    return random.sample(supplies, 4)
-
 # ==========================================
 # 7. DYNAMIC CSS
 # ==========================================
@@ -256,7 +243,6 @@ with st.sidebar:
 # ==========================================
 if st.session_state.view == 'dashboard':
     
-    # 🚧 UPDATED BETA BANNER
     st.info("🚧 **PUBLIC BETA:** You are currently using an Early Access version of Thrift Hunter. New features are added daily. If you encounter any issues, please report them via the Help tab.")
     
     news = get_live_news()
@@ -342,12 +328,50 @@ if st.session_state.view == 'dashboard':
     with tab2: st.dataframe(pd.DataFrame(st.session_state.inventory), use_container_width=True)
 
 # ==========================================
-# 10. SUPPLY DROP
+# 10. SUPPLY DROP (MAJOR UPDATE)
 # ==========================================
 elif st.session_state.view == 'supplies':
     st.title("🛒 Supply Drop")
+    st.caption("The official reseller starter kit. Verified quality.")
     
-    with st.expander("👀 Watchlist"):
+    # MUST HAVE SECTION
+    st.subheader("🔥 The 'Must Have' Setup")
+    c1, c2, c3 = st.columns(3)
+    
+    with c1:
+        st.markdown(f"""<div class="aff-card"><h3>🏷️ Thermal Printer</h3><p>Stop cutting paper labels. This saves 5 hours a week.</p></div>""", unsafe_allow_html=True)
+        st.link_button("Get Munbyn Printer ↗", AFFILIATE_LINKS['thermal_printer'], use_container_width=True)
+        
+    with c2:
+        st.markdown(f"""<div class="aff-card"><h3>📦 Poly Mailers</h3><p>The industry standard. Tear-proof and cheap.</p></div>""", unsafe_allow_html=True)
+        st.link_button("Get 100 Pack ↗", AFFILIATE_LINKS['poly_mailers'], use_container_width=True)
+        
+    with c3:
+        st.markdown(f"""<div class="aff-card"><h3>⚖️ Shipping Scale</h3><p>Never overpay for postage again. Essential.</p></div>""", unsafe_allow_html=True)
+        st.link_button("Get Accuteck Scale ↗", AFFILIATE_LINKS['scale'], use_container_width=True)
+
+    st.divider()
+    
+    # PRO TOOLS SECTION
+    st.subheader("📸 Studio & Prep")
+    c4, c5, c6 = st.columns(3)
+    
+    with c4:
+        st.markdown(f"""<div class="aff-card"><h3>💡 Ring Light</h3><p>Better lighting = Higher selling price.</p></div>""", unsafe_allow_html=True)
+        st.link_button("Get Ring Light ↗", AFFILIATE_LINKS['ring_light'], use_container_width=True)
+        
+    with c5:
+        st.markdown(f"""<div class="aff-card"><h3>🧼 Goo Gone</h3><p>Removes thrift store stickers in seconds.</p></div>""", unsafe_allow_html=True)
+        st.link_button("Get Goo Gone ↗", AFFILIATE_LINKS['goo_gone'], use_container_width=True)
+        
+    with c6:
+        st.markdown(f"""<div class="aff-card"><h3>📦 Heavy Duty Tape</h3><p>Don't use cheap tape. It splits & rips.</p></div>""", unsafe_allow_html=True)
+        st.link_button("Get Scotch HD ↗", AFFILIATE_LINKS['tape'], use_container_width=True)
+
+    st.divider()
+    
+    # WATCHLIST
+    with st.expander("👀 My Personal Watchlist"):
         c1, c2, c3 = st.columns([2, 2, 1])
         name = c1.text_input("Item")
         link = c2.text_input("Link")
@@ -358,17 +382,8 @@ elif st.session_state.view == 'supplies':
             c_w1.link_button(f"Check {item['name']}", item['link'])
             if c_w2.button("❌", key=item['name']): st.session_state.watchlist.remove(item); save_data(); st.rerun()
 
-    st.divider()
-    st.subheader(f"📅 Weekly Deals")
-    deals = get_weekly_deals()
-    cols = st.columns(4)
-    for i, deal in enumerate(deals):
-        with cols[i % 4]:
-            st.markdown(f"""<div class="aff-card"><div style="font-size:30px;">{deal['icon']}</div><div style="font-weight:bold;">{deal['name']}</div><div style="color:#22c55e;">{deal['deal']}</div></div>""", unsafe_allow_html=True)
-            st.link_button("View ↗", deal['link'], use_container_width=True)
-
 # ==========================================
-# 11. TOOLKIT (UPGRADED)
+# 11. TOOLKIT
 # ==========================================
 elif st.session_state.view == 'tools':
     st.title("🧰 Toolkit")
@@ -455,7 +470,7 @@ Genuine {d_item}. Great addition to any wardrobe. Please see photos for exact co
         st.write(f"**UK:** {us-1} | **EU:** {38 + (us-6)*1.3:.0f}")
 
 # ==========================================
-# 12. HELP & CONTACT (NEW)
+# 12. HELP & CONTACT
 # ==========================================
 elif st.session_state.view == 'help':
     st.title("❓ Help & Support")
@@ -543,4 +558,3 @@ elif st.session_state.view == 'settings':
             st.session_state.clear()
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
             st.rerun()
-
