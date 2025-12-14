@@ -28,12 +28,12 @@ PAYMENT_LINKS = {
 GUMROAD_PERMALINKS = ["entml", "klwkxa"]
 
 AFFILIATE_LINKS = {
-    "poly_mailers": "https://www.amazon.com/s?k=poly+mailers+10x13",
-    "thermal_printer": "https://www.amazon.com/s?k=thermal+label+printer",
-    "scale": "https://www.amazon.com/s?k=shipping+scale",
-    "tape": "https://www.amazon.com/s?k=heavy+duty+shipping+tape",
-    "ring_light": "https://www.amazon.com/s?k=ring+light",
-    "goo_gone": "https://www.amazon.com/s?k=goo+gone"
+    "poly_mailers": "https://amzn.to/3KTeBxD",
+    "thermal_printer": "https://amzn.to/4aPInOr",
+    "scale": "https://amzn.to/44ttptD",
+    "tape": "https://amzn.to/3XTDDzH",
+    "ring_light": "https://amzn.to/3MKXoXP",
+    "goo_gone": "https://amzn.to/4sddUAn"
 }
 
 # ==========================================
@@ -543,3 +543,4 @@ elif st.session_state.view == 'settings':
             st.session_state.clear()
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
             st.rerun()
+
