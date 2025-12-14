@@ -123,7 +123,7 @@ def verify_gumroad_key(key):
     key = key.strip()
     
     # Check Admin/Dev Keys first
-    if key in ["ADMIN", "MONEY"]: 
+    if key in ["ADMIN", "MONEY", "91F4A7BD-58954FF8-8B73AB40-DE4AFCF2"]:
         return True, "Dev Mode Active"
         
     for permalink in GUMROAD_PERMALINKS:
@@ -470,3 +470,4 @@ elif st.session_state.view == 'settings':
             st.session_state.clear()
             if os.path.exists(SAVE_FILE): os.remove(SAVE_FILE)
             st.rerun()
+
