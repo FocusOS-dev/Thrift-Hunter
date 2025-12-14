@@ -255,7 +255,9 @@ with st.sidebar:
 # 9. DASHBOARD
 # ==========================================
 if st.session_state.view == 'dashboard':
-    st.info("🚧 **PUBLIC BETA:** You are using an early access build. Features are updated daily.")
+    
+    # 🚧 UPDATED BETA BANNER
+    st.info("🚧 **PUBLIC BETA:** You are currently using an Early Access version of Thrift Hunter. New features are added daily. If you encounter any issues, please report them via the Help tab.")
     
     news = get_live_news()
     content = "".join([f'<div class="ticker-item">{item}</div>' for item in news * 4])
