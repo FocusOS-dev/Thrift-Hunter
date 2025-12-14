@@ -27,6 +27,9 @@ PAYMENT_LINKS = {
 # Your Product Permalinks (Must match Gumroad)
 GUMROAD_PERMALINKS = ["entml", "klwkxa"]
 
+# YOUR MASTER KEY (Always grants access)
+OWNER_KEY = "91F4A7BD-58954FF8-8B73AB40-DE4AFCF2"
+
 AFFILIATE_LINKS = {
     "poly_mailers": "https://amzn.to/3KTeBxD",
     "thermal_printer": "https://amzn.to/4aPInOr",
@@ -52,7 +55,7 @@ DB_URL = "https://raw.githubusercontent.com/FocusOS-dev/Thrift-Hunter/main/datab
 @st.cache_data(ttl=600)
 def get_live_data():
     try:
-        response = requests.get(DB_URL)
+        response = requests.get(DB_URL, timeout=5)
         if response.status_code == 200:
             data = response.json()
             return data.get('blacklist', []), data.get('vault', {})
@@ -116,25 +119,31 @@ R_DATA = REGIONS.get(st.session_state.region, REGIONS["Canada 🇨🇦"])
 CURR = R_DATA["sym"]
 
 # ==========================================
-# 5. SECURITY FUNCTIONS
+# 5. SECURITY FUNCTIONS (UPDATED)
 # ==========================================
 def verify_gumroad_key(key):
-    key = key.strip()
-    if key in ["ADMIN", "MONEY"]: 
-        return True, "Dev Mode Active"
+    # 1. Sanitize Input (Remove spaces, convert to uppercase)
+    clean_key = key.strip().upper()
+    
+    # 2. Check Owner Key (Bypass Gumroad)
+    if clean_key == OWNER_KEY: 
+        return True, "Welcome Founder 🦅"
         
+    # 3. Check Real Keys via API
     for permalink in GUMROAD_PERMALINKS:
         try:
             r = requests.post(
                 "https://api.gumroad.com/v2/licenses/verify",
-                data={"product_permalink": permalink, "license_key": key}
+                data={"product_permalink": permalink, "license_key": clean_key},
+                timeout=10
             )
             data = r.json()
             if data.get('success') and not data.get('purchase', {}).get('refunded'):
-                return True, "License Verified"
+                return True, "License Verified ✅"
         except:
             continue
-    return False, "Invalid Key or Expired Subscription"
+            
+    return False, "Invalid Key or Expired Subscription ❌"
 
 # ==========================================
 # 6. HELPER FUNCTIONS
@@ -166,19 +175,6 @@ def get_live_news():
         f"💰 WIN: User just flipped a jacket for {CURR}120 profit"
     ]
 
-def get_weekly_deals():
-    week_num = datetime.datetime.now().isocalendar()[1]
-    random.seed(week_num) 
-    supplies = [
-        {"icon": "📦", "name": "Poly Mailers", "deal": "20% Off", "link": AFFILIATE_LINKS['poly_mailers']},
-        {"icon": "🏷️", "name": "Thermal Labels", "deal": "Bulk Pack", "link": AFFILIATE_LINKS['thermal_printer']},
-        {"icon": "⚖️", "name": "Scale", "deal": "Pro Accuracy", "link": AFFILIATE_LINKS['scale']},
-        {"icon": "💡", "name": "Ring Light", "deal": "Photo Kit", "link": AFFILIATE_LINKS['ring_light']},
-        {"icon": "🧼", "name": "Goo Gone", "deal": "Cleaner", "link": AFFILIATE_LINKS['goo_gone']},
-        {"icon": "📦", "name": "HD Tape", "deal": "6 Pack", "link": AFFILIATE_LINKS['tape']},
-    ]
-    return random.sample(supplies, 4)
-
 # ==========================================
 # 7. DYNAMIC CSS
 # ==========================================
@@ -206,8 +202,6 @@ def get_theme_css():
         .ticker-item {{ display: inline-block; padding: 0 4rem; font-family: monospace; font-weight: bold; color: #00ff41; }}
         @keyframes ticker {{ 0% {{ transform: translateX(0); }} 100% {{ transform: translateX(-50%); }} }}
         .pro-lock {{ border: 1px dashed {border}; padding: 20px; border-radius: 10px; text-align: center; opacity: 0.6; background: {card_bg}; }}
-        .upgrade-btn {{ text-align: center; margin-top: 10px; }}
-        .upgrade-btn a {{ text-decoration: none; display: block; background: #eab308; color: black; padding: 8px; border-radius: 5px; font-weight: bold; margin-bottom: 5px; }}
     </style>
     """
 st.markdown(get_theme_css(), unsafe_allow_html=True)
@@ -221,7 +215,6 @@ def render_pro_lock(feature):
 with st.sidebar:
     st.title("🦅 Thrift Hunter")
     
-    # STATUS BADGE
     if st.session_state.is_pro:
         st.success("✅ **PRO MEMBER**")
     else:
@@ -398,7 +391,7 @@ elif st.session_state.view == 'supplies':
             if c_w2.button("❌", key=item['name']): st.session_state.watchlist.remove(item); save_data(); st.rerun()
 
 # ==========================================
-# 11. TOOLKIT (UPGRADED SMART VERSION)
+# 11. TOOLKIT (SMART VERSION)
 # ==========================================
 elif st.session_state.view == 'tools':
     st.title("🧰 Toolkit")
