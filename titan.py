@@ -166,6 +166,19 @@ def get_live_news():
         f"💰 WIN: User just flipped a jacket for {CURR}120 profit"
     ]
 
+def get_weekly_deals():
+    week_num = datetime.datetime.now().isocalendar()[1]
+    random.seed(week_num) 
+    supplies = [
+        {"icon": "📦", "name": "Poly Mailers", "deal": "20% Off", "link": AFFILIATE_LINKS['poly_mailers']},
+        {"icon": "🏷️", "name": "Thermal Labels", "deal": "Bulk Pack", "link": AFFILIATE_LINKS['thermal_printer']},
+        {"icon": "⚖️", "name": "Scale", "deal": "Pro Accuracy", "link": AFFILIATE_LINKS['scale']},
+        {"icon": "💡", "name": "Ring Light", "deal": "Photo Kit", "link": AFFILIATE_LINKS['ring_light']},
+        {"icon": "🧼", "name": "Goo Gone", "deal": "Cleaner", "link": AFFILIATE_LINKS['goo_gone']},
+        {"icon": "📦", "name": "HD Tape", "deal": "6 Pack", "link": AFFILIATE_LINKS['tape']},
+    ]
+    return random.sample(supplies, 4)
+
 # ==========================================
 # 7. DYNAMIC CSS
 # ==========================================
@@ -193,6 +206,8 @@ def get_theme_css():
         .ticker-item {{ display: inline-block; padding: 0 4rem; font-family: monospace; font-weight: bold; color: #00ff41; }}
         @keyframes ticker {{ 0% {{ transform: translateX(0); }} 100% {{ transform: translateX(-50%); }} }}
         .pro-lock {{ border: 1px dashed {border}; padding: 20px; border-radius: 10px; text-align: center; opacity: 0.6; background: {card_bg}; }}
+        .upgrade-btn {{ text-align: center; margin-top: 10px; }}
+        .upgrade-btn a {{ text-decoration: none; display: block; background: #eab308; color: black; padding: 8px; border-radius: 5px; font-weight: bold; margin-bottom: 5px; }}
     </style>
     """
 st.markdown(get_theme_css(), unsafe_allow_html=True)
@@ -233,10 +248,10 @@ with st.sidebar:
     
     st.divider()
     if not st.session_state.is_pro:
-        st.info("👑 **GO PRO**")
-        c1, c2 = st.columns(2)
-        c1.link_button("Month $10", PAYMENT_LINKS['monthly'], use_container_width=True)
-        c2.link_button("Life $35", PAYMENT_LINKS['lifetime'], use_container_width=True)
+        with st.expander("👑 **UPGRADE TO PRO**", expanded=True):
+            st.caption("Unlock The Vault, Tax Tools, and more.")
+            st.link_button("Monthly ($10/mo)", PAYMENT_LINKS['monthly'], use_container_width=True)
+            st.link_button("Lifetime ($35)", PAYMENT_LINKS['lifetime'], use_container_width=True)
 
 # ==========================================
 # 9. DASHBOARD
@@ -328,7 +343,7 @@ if st.session_state.view == 'dashboard':
     with tab2: st.dataframe(pd.DataFrame(st.session_state.inventory), use_container_width=True)
 
 # ==========================================
-# 10. SUPPLY DROP (MAJOR UPDATE)
+# 10. SUPPLY DROP
 # ==========================================
 elif st.session_state.view == 'supplies':
     st.title("🛒 Supply Drop")
@@ -383,7 +398,7 @@ elif st.session_state.view == 'supplies':
             if c_w2.button("❌", key=item['name']): st.session_state.watchlist.remove(item); save_data(); st.rerun()
 
 # ==========================================
-# 11. TOOLKIT
+# 11. TOOLKIT (UPGRADED SMART VERSION)
 # ==========================================
 elif st.session_state.view == 'tools':
     st.title("🧰 Toolkit")
@@ -450,24 +465,91 @@ Genuine {d_item}. Great addition to any wardrobe. Please see photos for exact co
             
     with t3:
         if st.session_state.is_pro:
-            st.subheader("Bulk Calculator")
-            cost = st.number_input("Total Cost", 0.0, 1000.0, 50.0)
-            items = st.number_input("Items", 1, 100, 20)
-            st.metric("Cost Per Item", f"{CURR}{cost/items:.2f}")
+            st.subheader("Smart Bulk Calculator")
+            c1, c2 = st.columns(2)
+            cost = c1.number_input("Total Lot Cost", 0.0, 5000.0, 100.0)
+            items = c2.number_input("Number of Items", 1, 500, 10)
+            avg_sale = st.number_input("Avg Sale Price per Item (Est)", 0.0, 500.0, 25.0)
+            
+            cost_per = cost / items
+            total_rev = items * avg_sale
+            fees = total_rev * 0.20 # Est 20% fees/ship
+            net = total_rev - cost - fees
+            break_even = cost / (avg_sale * 0.8)
+            
+            st.markdown("---")
+            c3, c4, c5 = st.columns(3)
+            c3.metric("Cost Per Item", f"{CURR}{cost_per:.2f}")
+            c4.metric("Est Net Profit", f"{CURR}{net:.2f}")
+            c5.metric("ROI", f"{((net/cost)*100):.0f}%")
+            
+            st.info(f"💡 **Break Even:** You need to sell **{int(break_even) + 1} items** to get your money back. The remaining **{items - (int(break_even) + 1)} items** are pure profit.")
         else: render_pro_lock("Bulk Calculator")
     
     with t4:
-        st.subheader("Offer Shield")
-        buy = st.number_input("Buy Cost", 10.0)
-        offer = st.number_input("Offer Amount", 20.0)
-        prof = offer - buy - (offer*0.2)
-        if prof > 0: st.success(f"Profit: {CURR}{prof:.2f}")
-        else: st.error(f"Loss: {CURR}{prof:.2f}")
+        st.subheader("Offer Shield (Decision Maker)")
+        c1, c2 = st.columns(2)
+        buy_cost = c1.number_input("Your Buy Cost", 0.0, 1000.0, 10.0)
+        ship_cost = c2.number_input("Shipping Cost", 0.0, 100.0, 10.0)
+        offer_amt = st.number_input("Offer Received", 0.0, 1000.0, 25.0)
         
+        fees = offer_amt * 0.13
+        net = offer_amt - buy_cost - ship_cost - fees
+        margin = (net / offer_amt) * 100 if offer_amt > 0 else 0
+        
+        st.markdown(f"**Net Profit: {CURR}{net:.2f} ({margin:.0f}% Margin)**")
+        
+        if net < 0:
+            st.error(f"❌ **DECLINE:** You will lose {CURR}{abs(net):.2f}.")
+            rec_price = buy_cost + ship_cost + fees + 5
+            st.caption(f"💡 Counter at **{CURR}{rec_price:.2f}** to make $5 profit.")
+        elif margin < 15:
+            st.warning("⚠️ **RISKY:** Profit is very low. Counter offer recommended.")
+        else:
+            st.success("✅ **ACCEPT:** Good profit margin.")
+            
     with t5:
-        st.subheader("Size Converter")
-        us = st.number_input("US Size", 4.0, 15.0, 9.0)
-        st.write(f"**UK:** {us-1} | **EU:** {38 + (us-6)*1.3:.0f}")
+        st.subheader("Global Size Converter")
+        type_s = st.selectbox("Category", ["Men's Shoes", "Women's Shoes", "Men's Tops"])
+        
+        if type_s == "Men's Shoes":
+            size_data = {
+                "7": {"UK": "6", "EU": "40", "CM": "25"},
+                "8": {"UK": "7", "EU": "41", "CM": "26"},
+                "9": {"UK": "8", "EU": "42.5", "CM": "27"},
+                "10": {"UK": "9", "EU": "44", "CM": "28"},
+                "11": {"UK": "10", "EU": "45", "CM": "29"},
+                "12": {"UK": "11", "EU": "46", "CM": "30"}
+            }
+            us_size = st.select_slider("US Size", options=list(size_data.keys()), value="9")
+            res = size_data[us_size]
+            c1, c2, c3 = st.columns(3)
+            c1.metric("UK", res["UK"])
+            c2.metric("EU", res["EU"])
+            c3.metric("CM", res["CM"])
+            
+        elif type_s == "Women's Shoes":
+            size_data = {
+                "6": {"UK": "3.5", "EU": "36.5", "CM": "23"},
+                "7": {"UK": "4.5", "EU": "37.5", "CM": "24"},
+                "8": {"UK": "5.5", "EU": "38.5", "CM": "25"},
+                "9": {"UK": "6.5", "EU": "40", "CM": "26"},
+                "10": {"UK": "7.5", "EU": "41", "CM": "27"}
+            }
+            us_size = st.select_slider("US Size", options=list(size_data.keys()), value="7")
+            res = size_data[us_size]
+            c1, c2, c3 = st.columns(3)
+            c1.metric("UK", res["UK"])
+            c2.metric("EU", res["EU"])
+            c3.metric("CM", res["CM"])
+
+        else:
+            st.info("Clothing conversion is general estimate.")
+            st.table(pd.DataFrame({
+                "US Size": ["S", "M", "L", "XL", "XXL"],
+                "UK/AU": ["36", "38", "40", "42", "44"],
+                "EU": ["46", "48", "50", "52", "54"]
+            }))
 
 # ==========================================
 # 12. HELP & CONTACT
